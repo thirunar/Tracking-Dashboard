@@ -1,9 +1,15 @@
 package com.balajigrp.model;
 
+import com.balajigrp.util.CastUtil;
 import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
+
+import static com.balajigrp.util.CastUtil.getBigDecimal;
+import static com.balajigrp.util.CastUtil.getBigInteger;
+import static com.balajigrp.util.CastUtil.getString;
 
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "reading", type = "reading", shards = 1, replicas = 0, refreshInterval = "-1")
 public class Reading {
@@ -39,6 +45,31 @@ public class Reading {
 
     public Reading(String id, BigDecimal omr, BigDecimal cmr, BigDecimal litres, BigInteger ton, String driverName, String destination, BigDecimal tollFee, BigDecimal tiffinCost, BigDecimal personalCost, BigDecimal unloadingCost, BigDecimal rtoFee, BigDecimal weighBridge, BigDecimal rent, String companyName, BigDecimal maintenance, BigDecimal dieselPrice) {
         this.id = id;
+        this.omr = omr;
+        this.cmr = cmr;
+        this.kilometers = cmr.subtract(omr);
+        this.litres = litres;
+        this.ton = ton;
+        this.driverName = driverName;
+        this.destination = destination;
+        this.tollFee = tollFee;
+        this.tiffinCost = tiffinCost;
+        this.personalCost = personalCost;
+        this.unloadingCost = unloadingCost;
+        this.rtoFee = rtoFee;
+        this.weighBridge = weighBridge;
+        this.rent = rent;
+        this.companyName = companyName;
+        this.maintenance = maintenance;
+        this.dieselUnitPrice = dieselPrice;
+        this.mileage = cmr.subtract(omr).divide(litres, 2, 1);
+        this.expenses = tollFee.add(tiffinCost).add(personalCost).add(unloadingCost).add(rtoFee).add(weighBridge);
+        this.dieselExpense = litres.multiply(dieselUnitPrice).setScale(2, 1);
+        this.totalExpenses = this.expenses.add(dieselExpense).setScale(2, 1);
+        this.netAmount = this.rent.subtract(this.totalExpenses);
+    }
+
+    public Reading(BigDecimal omr, BigDecimal cmr, BigDecimal litres, BigInteger ton, String driverName, String destination, BigDecimal tollFee, BigDecimal tiffinCost, BigDecimal personalCost, BigDecimal unloadingCost, BigDecimal rtoFee, BigDecimal weighBridge, BigDecimal rent, String companyName, BigDecimal maintenance, BigDecimal dieselPrice) {
         this.omr = omr;
         this.cmr = cmr;
         this.kilometers = cmr.subtract(omr);
@@ -155,6 +186,7 @@ public class Reading {
         return dieselUnitPrice;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -217,5 +249,24 @@ public class Reading {
         result = 31 * result + (maintenance != null ? maintenance.hashCode() : 0);
         result = 31 * result + (dieselUnitPrice != null ? dieselUnitPrice.hashCode() : 0);
         return result;
+    }
+
+    public static Reading fromMap(Map<String, Object> map) {
+        return new Reading(getBigDecimal(map.get("omr")),
+                getBigDecimal(map.get("cmr")),
+                getBigDecimal(map.get("litres")),
+                getBigInteger(map.get("ton")),
+                getString(map.get("driverName")),
+                getString(map.get("destination")),
+                getBigDecimal(map.get("tollFee")),
+                getBigDecimal(map.get("tiffinCost")),
+                getBigDecimal(map.get("personalCost")),
+                getBigDecimal(map.get("unloadingCost")),
+                getBigDecimal(map.get("rtoFee")),
+                getBigDecimal(map.get("weighBridge")),
+                getBigDecimal(map.get("rent")),
+                getString(map.get("companyName")),
+                getBigDecimal(map.get("maintenance")),
+                getBigDecimal(map.get("dieselPrice")));
     }
 }

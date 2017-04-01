@@ -5,8 +5,10 @@ import com.balajigrp.model.Reading;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -22,6 +24,8 @@ public class ReadingRepositoryTest {
     private ReadingRepository repository;
 
     @Test
+    @Transactional
+    @Rollback
     public void shouldTestSaveAndRetrievalInElasticSearch() throws Exception {
         Reading reading = new Reading("1", new BigDecimal("68214"), new BigDecimal("68682"),
                 new BigDecimal("73"), new BigInteger("10000"), "Mohan", "Karaikal",
