@@ -1,0 +1,12 @@
+.mvn/
+/target/
+.idea
+*.iml
+rebel.xml
+*.log
+*.log.*
+.settings/
+.classpath
+data/
+.project
+*.tmp
